@@ -7,6 +7,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.InputMismatchException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
@@ -110,15 +112,15 @@ public class SosifodUtil {
     }
 
     //Mensagem e redirecionamento erro
-    public static void mensagemErroRedirecionamento(Exception e) throws IOException {
-        ExternalContext ctxExt = FacesContext.getCurrentInstance().getExternalContext();
-        FacesContext.getCurrentInstance().addMessage(null, emiteMsg("Ooops...", 3));
-        FacesContext.getCurrentInstance().addMessage(null, emiteMsg(e.getMessage(), 3));
-        if (e.getCause() != null) {
-            FacesContext.getCurrentInstance().addMessage(null, emiteMsg(e.getCause().getMessage(), 3));
+    public static void mensagemErroRedirecionamento(String msg) {
+        try {
+            ExternalContext ctxExt = FacesContext.getCurrentInstance().getExternalContext();
+            FacesContext.getCurrentInstance().addMessage(null, emiteMsg(msg, 3));
+            FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
+            ctxExt.redirect(ctxExt.getRequestContextPath() + "/ErroPage.jsf");
+        } catch (IOException ex) {
+            Logger.getLogger(SosifodUtil.class.getName()).log(Level.SEVERE, null, ex);
         }
-        FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
-        ctxExt.redirect(ctxExt.getRequestContextPath() + "/ErroPage.jsf");
     }
 
     //Data formatada para impressão

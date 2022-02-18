@@ -1,12 +1,12 @@
 package br.com.sosifod.exception;
 
-public class DaoException extends Exception {
+public class AdministradorException extends Exception {
 
-    public DaoException(String message) {
+    public AdministradorException(String message) {
         super(message);
     }
     
-    public DaoException(String message, Throwable cause){
+    public AdministradorException(String message, Throwable cause){
         super(message, cause);
     }
             
