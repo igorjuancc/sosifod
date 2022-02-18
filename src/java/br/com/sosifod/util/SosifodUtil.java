@@ -1,6 +1,5 @@
 package br.com.sosifod.util;
 
-import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -138,17 +137,110 @@ public class SosifodUtil {
             return null;
         }
     }
-    
-    //Excluir arquivo pasta
-    public static Boolean apagarImagem(String local, String nomeArquivo) {
-        try {
-            File pasta = new File(local, nomeArquivo);
-            pasta.delete();
-            return true;
-        } catch (Exception e) {
-            System.out.println("****Problemas ao apagar arquivo" + nomeArquivo + "****");
-            e.printStackTrace();
-            return false;
+        
+    public static String statusHttp(int cod) {
+        String rtn;
+        switch (cod) {
+            case 100:
+                rtn = "Continuar";
+                break;
+            case 101:
+                rtn = "Mudando protocolos";
+                break;
+            case 200:
+                rtn = "Ok";
+                break;
+            case 201:
+                rtn = "Criado";
+                break;
+            case 202:
+                rtn = "Aceito";
+                break;
+            case 203:
+                rtn = "Não Autorizado";
+                break;
+            case 204:
+                rtn = "Nenhum conteúdo";
+                break;
+            case 205:
+                rtn = "Reset";
+                break;
+            case 206:
+                rtn = "Conteúdo parcial";
+                break;
+            case 207:
+                rtn = "Status multi";
+                break;
+            case 300:
+                rtn = "Múltipla escolha";
+                break;
+            case 301:
+                rtn = "Movido permanentemente";
+                break;
+            case 302:
+                rtn = "Encontrado";
+                break;
+            case 304:
+                rtn = "Não modificado";
+                break;
+            case 305:
+                rtn = "Use proxy";
+                break;
+            case 307:
+                rtn = "Redirecionamento temporário";
+                break;
+            case 400:
+                rtn = "Requisição inválida";
+                break;
+            case 401:
+                rtn = "Não autorizado";
+                break;
+            case 402:
+                rtn = "Pagamento necessário";
+                break;
+            case 403:
+                rtn = "Proibido";
+                break;
+            case 404:
+                rtn = "Não encontrado";
+                break;
+            case 405:
+                rtn = "Método não permitido";
+                break;
+            case 406:
+                rtn = "Não Aceitável";
+                break;
+            case 407:
+                rtn = "Autenticação de proxy necessária";
+                break;
+            case 408:
+                rtn = "Tempo de requisição esgotou";
+                break;
+            case 409:
+                rtn = "Conflito";
+                break;
+            case 500:
+                rtn = "Erro interno do servidor";
+                break;
+            case 501:
+                rtn = "Não implementado";
+                break;
+            case 502:
+                rtn = "Bad gateway";
+                break;
+            case 503:
+                rtn = "Serviço indisponível";
+                break;
+            case 504:
+                rtn = "Gateway time-out";
+                break;
+            case 505:
+                rtn = "HTTP Version not supported.";
+                break;
+            default:
+                rtn = "Desconhecido";
         }
+        rtn = "[" + Integer.toString(cod) + "] - " + rtn;
+        return rtn;
     }
 }
