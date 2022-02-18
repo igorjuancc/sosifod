@@ -8,60 +8,64 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 
 public class AdministradorDao {
+
     public void cadastrarAdministrador(Administrador administrador) throws DaoException {
+        Session session = null;
         try {
-            Session session = HibernateUtil.getSessionFactory().openSession();
-            try {
-                session.beginTransaction();
-                session.save(administrador);                
-            } finally {
-                session.getTransaction().commit();
-                session.close();
-            }
+            session = HibernateUtil.getSessionFactory().openSession();
+            session.beginTransaction();
+            session.save(administrador);
         } catch (HibernateException e) {
             throw new DaoException("****Problema ao cadastrar novo administrador [Hibernate]****", e);
         } catch (Exception e) {
             throw new DaoException("****Problema ao cadastrar novo administrador [DAO]****", e);
-        }
-    }     
-    
-    public Administrador buscaAdministradorCpf(String cpf) throws DaoException {
-        try {
-            Session session = HibernateUtil.getSessionFactory().openSession();
-            try {
-                session.beginTransaction();
-                Query select = session.createQuery("FROM Administrador a WHERE a.cpf = :cpf");
-                select.setParameter("cpf", cpf);
-                Administrador administrador = (Administrador) select.uniqueResult();
-                return administrador;                
-            } finally {
+        } finally {
+            if (session != null) {
                 session.getTransaction().commit();
                 session.close();
             }
+        }
+    }
+
+    public Administrador buscaAdministradorCpf(String cpf) throws DaoException {
+        Session session = null;
+        try {
+            session = HibernateUtil.getSessionFactory().openSession();
+            session.beginTransaction();
+            Query select = session.createQuery("FROM Administrador a WHERE a.cpf = :cpf");
+            select.setParameter("cpf", cpf);
+            Administrador administrador = (Administrador) select.uniqueResult();
+            return administrador;
         } catch (HibernateException e) {
             throw new DaoException("****Problema ao buscar administrador por CPF [Hibernate]****", e);
         } catch (Exception e) {
             throw new DaoException("****Problema ao buscar administrador por CPF [DAO]****", e);
-        }
-    }     
-    
-    public Administrador buscaAdministradorEmail(String email) throws DaoException {
-        try {
-            Session session = HibernateUtil.getSessionFactory().openSession();
-            try {
-                session.beginTransaction();
-                Query select = session.createQuery("FROM Administrador a WHERE a.email = :email");
-                select.setParameter("email", email);
-                Administrador administrador = (Administrador) select.uniqueResult();
-                return administrador;                
-            } finally {
+        } finally {
+            if (session != null) {
                 session.getTransaction().commit();
                 session.close();
             }
+        }
+    }
+
+    public Administrador buscaAdministradorEmail(String email) throws DaoException {
+        Session session = null;
+        try {
+            session = HibernateUtil.getSessionFactory().openSession();
+            session.beginTransaction();
+            Query select = session.createQuery("FROM Administrador a WHERE a.email = :email");
+            select.setParameter("email", email);
+            Administrador administrador = (Administrador) select.uniqueResult();
+            return administrador;
         } catch (HibernateException e) {
             throw new DaoException("****Problema ao buscar administrador por Email [Hibernate]****", e);
         } catch (Exception e) {
             throw new DaoException("****Problema ao buscar administrador por Email [DAO]****", e);
+        } finally {
+            if (session != null) {
+                session.getTransaction().commit();
+                session.close();
+            }
         }
-    }     
+    }
 }

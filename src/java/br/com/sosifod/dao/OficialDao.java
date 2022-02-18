@@ -9,79 +9,84 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 
 public class OficialDao {
+
     public void cadastrarOficial(Oficial oficial) throws DaoException {
+        Session session = null;
         try {
-            Session session = HibernateUtil.getSessionFactory().openSession();
-            try {
-                session.beginTransaction();
-                session.save(oficial);                
-            } finally {
-                session.getTransaction().commit();
-                session.close();
-            }
+            session = HibernateUtil.getSessionFactory().openSession();
+            session.beginTransaction();
+            session.save(oficial);
         } catch (HibernateException e) {
             throw new DaoException("****Problema ao cadastrar novo oficial [Hibernate]****", e);
         } catch (Exception e) {
             throw new DaoException("****Problema ao cadastrar novo oficial [DAO]****", e);
-        }
-    }     
-    
-    public Oficial buscaOficialCpf(String cpf) throws DaoException {
-        try {
-            Session session = HibernateUtil.getSessionFactory().openSession();
-            try {
-                session.beginTransaction();
-                Query select = session.createQuery("FROM Oficial o WHERE o.cpf = :cpf");
-                select.setParameter("cpf", cpf);
-                Oficial oficial = (Oficial) select.uniqueResult();
-                return oficial;                
-            } finally {
+        } finally {
+            if (session != null) {
                 session.getTransaction().commit();
                 session.close();
             }
+        }
+    }
+
+    public Oficial buscaOficialCpf(String cpf) throws DaoException {
+        Session session = null;
+        try {
+            session = HibernateUtil.getSessionFactory().openSession();
+            session.beginTransaction();
+            Query select = session.createQuery("FROM Oficial o WHERE o.cpf = :cpf");
+            select.setParameter("cpf", cpf);
+            Oficial oficial = (Oficial) select.uniqueResult();
+            return oficial;
         } catch (HibernateException e) {
             throw new DaoException("****Problema ao buscar oficial de justiça por CPF [Hibernate]****", e);
         } catch (Exception e) {
             throw new DaoException("****Problema ao buscar oficial de justiça por CPF [DAO]****", e);
-        }
-    }     
-    
-    public Oficial buscaOficialEmail(String email) throws DaoException {
-        try {
-            Session session = HibernateUtil.getSessionFactory().openSession();
-            try {
-                session.beginTransaction();
-                Query select = session.createQuery("FROM Oficial o WHERE o.email = :email");
-                select.setParameter("email", email);
-                Oficial oficial = (Oficial) select.uniqueResult();
-                return oficial;                
-            } finally {
+        } finally {
+            if (session != null) {
                 session.getTransaction().commit();
                 session.close();
             }
+        }
+    }
+
+    public Oficial buscaOficialEmail(String email) throws DaoException {
+        Session session = null;
+        try {
+            session = HibernateUtil.getSessionFactory().openSession();
+            session.beginTransaction();
+            Query select = session.createQuery("FROM Oficial o WHERE o.email = :email");
+            select.setParameter("email", email);
+            Oficial oficial = (Oficial) select.uniqueResult();
+            return oficial;
         } catch (HibernateException e) {
             throw new DaoException("****Problema ao buscar oficial por Email [Hibernate]****", e);
         } catch (Exception e) {
             throw new DaoException("****Problema ao buscar oficial por Email [DAO]****", e);
-        }
-    }  
-    
-    public List<Oficial> listaOficiais() throws DaoException {
-        try {
-            Session session = HibernateUtil.getSessionFactory().openSession();
-            try {
-                session.beginTransaction();
-                Query select = session.createQuery("FROM Oficial");
-                List<Oficial> oficiais = select.list();
-                return oficiais;                
-            } finally {
+        } finally {
+            if (session != null) {
                 session.getTransaction().commit();
                 session.close();
             }
+        }
+    }
+
+    public List<Oficial> listaOficiais() throws DaoException {
+        Session session = null;
+        try {
+            session = HibernateUtil.getSessionFactory().openSession();
+            session.beginTransaction();
+            Query select = session.createQuery("FROM Oficial");
+            List<Oficial> oficiais = select.list();
+            return oficiais;
         } catch (HibernateException e) {
             throw new DaoException("****Problema ao buscar lista de oficiais de justiça [Hibernate]****", e);
         } catch (Exception e) {
             throw new DaoException("****Problema ao buscar lista de oficiais de justiça [DAO]****", e);
-        }        
+        } finally {
+            if (session != null) {
+                session.getTransaction().commit();
+                session.close();
+            }
+        }
     }
 }
