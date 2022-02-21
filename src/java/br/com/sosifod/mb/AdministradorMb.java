@@ -2,14 +2,13 @@ package br.com.sosifod.mb;
 
 import br.com.sosifod.bean.Administrador;
 import br.com.sosifod.bean.Intimacao;
+import br.com.sosifod.exception.AdministradorException;
 import br.com.sosifod.facade.AdministradorFacade;
 import br.com.sosifod.facade.IntimacaoFacade;
 import br.com.sosifod.util.SosifodUtil;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
@@ -46,41 +45,35 @@ public class AdministradorMb implements Serializable {
             if ((login != null) && (login.getAdm().getId() != 0)) {
                 this.intimacoes = IntimacaoFacade.listaIntimacao();
             }
-
         } catch (Exception e) {
-            try {
-                SosifodUtil.mensagemErroRedirecionamento(e);
-            } catch (IOException ex) {
-                Logger.getLogger(AdministradorMb.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            e.printStackTrace(System.out);
+            String msg = "Problemas ao inicializar página " + FacesContext.getCurrentInstance().getViewRoot().getViewId();
+            SosifodUtil.mensagemErroRedirecionamento(msg);
         }
     }
 
     public void cadastrarAdministrador() {
+        FacesContext ctx = null;
         try {
             FacesMessage msg;
-            FacesContext ctx = FacesContext.getCurrentInstance();
-
+            ctx = FacesContext.getCurrentInstance();
             if (!this.administrador.getSenha().equals(this.confirmaSenha)) {
                 msg = SosifodUtil.emiteMsg("Senha e confirmação não conferem", 2);
                 ctx.addMessage(null, msg);
             } else {
-                List<String> mensagens = AdministradorFacade.cadastrarAdministrador(this.administrador);
-                if (!mensagens.isEmpty()) {
-                    for (String print : mensagens) {
-                        msg = SosifodUtil.emiteMsg(print, 2);
-                        ctx.addMessage(null, msg);
-                    }
-                } else {
-                    this.cadastroConcluido = true;
-                }
+                AdministradorFacade.cadastrarAdministrador(this.administrador);
+                this.cadastroConcluido = true;
+            }
+        } catch (AdministradorException e) {
+            if (ctx != null) {
+                ctx.addMessage(null, SosifodUtil.emiteMsg(e.getMessage(), 2));
+            } else {
+                e.printStackTrace(System.out);
+                SosifodUtil.mensagemErroRedirecionamento("Houve um problema ao cadastrar um administrador");
             }
         } catch (Exception e) {
-            try {
-                SosifodUtil.mensagemErroRedirecionamento(e);
-            } catch (IOException ex) {
-                Logger.getLogger(AdministradorMb.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            e.printStackTrace(System.out);
+            SosifodUtil.mensagemErroRedirecionamento("Houve um problema ao cadastrar um administrador");
         }
     }
 
@@ -89,17 +82,14 @@ public class AdministradorMb implements Serializable {
             ExternalContext ctxExt = FacesContext.getCurrentInstance().getExternalContext();
             FacesContext.getCurrentInstance().getExternalContext().getFlash().put("idIntimacao", id);
             ctxExt.redirect(ctxExt.getRequestContextPath() + "/Administrador/VerIntimacao.jsf");
-        } catch (Exception e) {
-            try {
-                SosifodUtil.mensagemErroRedirecionamento(e);
-            } catch (IOException ex) {
-                Logger.getLogger(OficialMb.class.getName()).log(Level.SEVERE, null, ex);
-            }
+        } catch (IOException e) {
+            e.printStackTrace(System.out);
+            SosifodUtil.mensagemErroRedirecionamento("Houve um problema ao redirecionar página");
         }
     }
 
     public String statusIntimacao(Intimacao intimacao) {
-        String rtn = null;
+        String rtn;
         try {
             if (intimacao.getStatus() == null) {
                 rtn = "PARA EXECUÇÃO";
@@ -108,29 +98,24 @@ public class AdministradorMb implements Serializable {
             } else {
                 rtn = "CONCLUÍDO";
             }
+            return rtn;
         } catch (Exception e) {
-            try {
-                SosifodUtil.mensagemErroRedirecionamento(e);
-            } catch (IOException ex) {
-                Logger.getLogger(OficialMb.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            e.printStackTrace(System.out);
+            SosifodUtil.mensagemErroRedirecionamento("Houve um problema ao obter o status da intimação");
+            return null;
         }
-        return rtn;
     }
 
     public void apagarIntimacao(Intimacao intimacao) {
         try {
-            IntimacaoFacade.apagarIntimacao(intimacao);    
+            IntimacaoFacade.apagarIntimacao(intimacao);
             this.intimacoes = IntimacaoFacade.listaIntimacao();
             FacesContext ctx = FacesContext.getCurrentInstance();
             FacesMessage msg = SosifodUtil.emiteMsg("Intimação deletada", 1);
             ctx.addMessage(null, msg);
         } catch (Exception e) {
-            try {
-                SosifodUtil.mensagemErroRedirecionamento(e);
-            } catch (IOException ex) {
-                Logger.getLogger(OficialMb.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            e.printStackTrace(System.out);
+            SosifodUtil.mensagemErroRedirecionamento("Houve um problema ao apagar uma intimação");
         }
     }
 

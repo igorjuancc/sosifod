@@ -2,14 +2,14 @@ package br.com.sosifod.mb;
 
 import br.com.sosifod.bean.Intimacao;
 import br.com.sosifod.bean.Oficial;
+import br.com.sosifod.exception.IntimacaoException;
+import br.com.sosifod.exception.OficialException;
 import br.com.sosifod.facade.IntimacaoFacade;
 import br.com.sosifod.facade.OficialFacade;
 import br.com.sosifod.util.SosifodUtil;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
@@ -47,44 +47,39 @@ public class OficialMb implements Serializable {
                 this.intimacoes = IntimacaoFacade.listaIntimacaoOficial(login.getOficial().getId());
             }
         } catch (Exception e) {
-            try {
-                SosifodUtil.mensagemErroRedirecionamento(e);
-            } catch (IOException ex) {
-                Logger.getLogger(OficialMb.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            e.printStackTrace(System.out);
+            String msg = "Problemas ao inicializar página " + FacesContext.getCurrentInstance().getViewRoot().getViewId();
+            SosifodUtil.mensagemErroRedirecionamento(msg);
         }
     }
 
     public void cadastrarOficial() {
+        FacesContext ctx = null;
         try {
             FacesMessage msg;
-            FacesContext ctx = FacesContext.getCurrentInstance();
-
+            ctx = FacesContext.getCurrentInstance();
             if (!this.oficial.getSenha().equals(this.confirmaSenha)) {
                 msg = SosifodUtil.emiteMsg("Senha e confirmação não conferem", 2);
                 ctx.addMessage(null, msg);
             } else {
-                List<String> mensagens = OficialFacade.cadastrarOficial(this.oficial);
-                if (!mensagens.isEmpty()) {
-                    for (String print : mensagens) {
-                        msg = SosifodUtil.emiteMsg(print, 2);
-                        ctx.addMessage(null, msg);
-                    }
-                } else {
-                    this.cadastroConcluido = true;
-                }
+                OficialFacade.cadastrarOficial(this.oficial);
+                this.cadastroConcluido = true;
+            }
+        } catch (OficialException e) {
+            if (ctx != null) {
+                ctx.addMessage(null, SosifodUtil.emiteMsg(e.getMessage(), 2));
+            } else {
+                e.printStackTrace(System.out);
+                SosifodUtil.mensagemErroRedirecionamento("Houve um problema ao cadastrar um oficial");
             }
         } catch (Exception e) {
-            try {
-                SosifodUtil.mensagemErroRedirecionamento(e);
-            } catch (IOException ex) {
-                Logger.getLogger(AdministradorMb.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            e.printStackTrace(System.out);
+            SosifodUtil.mensagemErroRedirecionamento("Houve um problema ao cadastrar um oficial");
         }
     }
 
     public String statusIntimacao(Intimacao intimacao) {
-        String rtn = null;
+        String rtn;
         try {
             if (intimacao.getStatus() == null) {
                 rtn = "PARA EXECUÇÃO";
@@ -93,14 +88,12 @@ public class OficialMb implements Serializable {
             } else {
                 rtn = "CONCLUÍDO";
             }
+            return rtn;
         } catch (Exception e) {
-            try {
-                SosifodUtil.mensagemErroRedirecionamento(e);
-            } catch (IOException ex) {
-                Logger.getLogger(OficialMb.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            e.printStackTrace(System.out);
+            SosifodUtil.mensagemErroRedirecionamento("Houve um problema ao obter o status da intimação");
+            return null;
         }
-        return rtn;
     }
 
     public void verIntimacao(int id) {
@@ -108,36 +101,32 @@ public class OficialMb implements Serializable {
             ExternalContext ctxExt = FacesContext.getCurrentInstance().getExternalContext();
             FacesContext.getCurrentInstance().getExternalContext().getFlash().put("idIntimacao", id);
             ctxExt.redirect(ctxExt.getRequestContextPath() + "/Oficial/VerIntimacao.jsf");
-        } catch (Exception e) {
-            try {
-                SosifodUtil.mensagemErroRedirecionamento(e);
-            } catch (IOException ex) {
-                Logger.getLogger(OficialMb.class.getName()).log(Level.SEVERE, null, ex);
-            }
+        } catch (IOException e) {
+            e.printStackTrace(System.out);
+            SosifodUtil.mensagemErroRedirecionamento("Houve um problema ao redirecionar página");
         }
     }
 
     public void atualizarIntimacao(Boolean opc) {
         try {
             this.intimacao.setStatus(opc);
-            String mensagem = IntimacaoFacade.atualizarIntimacao(this.intimacao);
-            if (mensagem == null) {
-                ExternalContext ctxExt = FacesContext.getCurrentInstance().getExternalContext();
-                ctxExt.redirect(ctxExt.getRequestContextPath() + "/Oficial/InicioOficial.jsf");
+            IntimacaoFacade.atualizarIntimacao(this.intimacao);
+            ExternalContext ctxExt = FacesContext.getCurrentInstance().getExternalContext();
+            ctxExt.redirect(ctxExt.getRequestContextPath() + "/Oficial/InicioOficial.jsf");
+        } catch (IntimacaoException e) {
+            FacesContext ctx = FacesContext.getCurrentInstance();
+            if (ctx != null) {
+                ctx.addMessage(null, SosifodUtil.emiteMsg(e.getMessage(), 2));
             } else {
-                FacesContext ctx = FacesContext.getCurrentInstance();
-                FacesMessage msg = SosifodUtil.emiteMsg(mensagem, 2);
-                ctx.addMessage(null, msg);
+                e.printStackTrace(System.out);
+                SosifodUtil.mensagemErroRedirecionamento("Houve um problema ao atualizar intimação");
             }
         } catch (Exception e) {
-            try {
-                SosifodUtil.mensagemErroRedirecionamento(e);
-            } catch (IOException ex) {
-                Logger.getLogger(OficialMb.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            e.printStackTrace(System.out);
+            SosifodUtil.mensagemErroRedirecionamento("Houve um problema ao atualizar intimação");
         }
     }
-    
+
     public String imprimeCpf(String cpf) {
         return SosifodUtil.imprimeCPF(cpf);
     }

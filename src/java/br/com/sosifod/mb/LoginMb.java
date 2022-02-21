@@ -7,8 +7,6 @@ import br.com.sosifod.util.Seguranca;
 import br.com.sosifod.util.SosifodUtil;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.enterprise.context.SessionScoped;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
@@ -55,11 +53,9 @@ public class LoginMb implements Serializable {
                 ctx.addMessage(null, msg);
             }
         } catch (Exception e) {
-            try {
-                SosifodUtil.mensagemErroRedirecionamento(e);
-            } catch (IOException ex) {
-                Logger.getLogger(LoginMb.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            e.printStackTrace(System.out);
+            String msg = "Problemas ao inicializar página " + FacesContext.getCurrentInstance().getViewRoot().getViewId();
+            SosifodUtil.mensagemErroRedirecionamento(msg);
         }
     }
 
@@ -70,12 +66,9 @@ public class LoginMb implements Serializable {
                 ctxExt.invalidateSession();
                 ctxExt.redirect(ctxExt.getRequestContextPath() + "/index.jsf");
             }
-        } catch (Exception e) {
-            try {
-                SosifodUtil.mensagemErroRedirecionamento(e);
-            } catch (IOException ex) {
-                Logger.getLogger(LoginMb.class.getName()).log(Level.SEVERE, null, ex);
-            }
+        } catch (IOException e) {
+            e.printStackTrace(System.out);
+            SosifodUtil.mensagemErroRedirecionamento("Houve um problema ao realizar logoff do sistema");
         }
     }
 
