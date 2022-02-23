@@ -154,16 +154,14 @@ public class IntimacaoFacade {
             intimacaoDto.getEndereco().setRua(intimacao.getEndereco().getRua());
 
             Client client = ClientBuilder.newClient();
-            WebTarget target = client.target("http://localhost:8080/SIJOGA/webresources/sijoga/execIntimacao");
+            WebTarget target = client.target("http://localhost:8080/sijoga/webresources/sijoga/execIntimacao");
             Response resp = target.request().accept(MediaType.APPLICATION_JSON).post(Entity.entity(intimacaoDto, MediaType.APPLICATION_JSON));
-            intimacaoDto = resp.readEntity(IntimacaoDto.class);
-            //intimacaoDto = client.target("http://localhost:8080/SIJOGA/webresources/sijoga/execIntimacao").request(MediaType.APPLICATION_JSON).post(Entity.json(intimacaoDto), IntimacaoDto.class);
 
-            if ((resp.getStatus() != 200) || (intimacaoDto.getId() == 0)) {
-                String msg = "Houve um problema ao criar nova fase no processo: <br />";
-                msg += SosifodUtil.statusHttp(resp.getStatus());                
+            if ((resp.getStatus() != 200) && (resp.getStatus() != 201)) {
+                String msg = "Houve um problema ao criar nova fase no processo: ";
+                msg += SosifodUtil.statusHttp(resp.getStatus());
                 throw new IntimacaoException(msg);
-            }         
+            }
         } catch (DaoException e) {
             e.printStackTrace(System.out);
             SosifodUtil.mensagemErroRedirecionamento("Houve um problema ao atualizar intimação");

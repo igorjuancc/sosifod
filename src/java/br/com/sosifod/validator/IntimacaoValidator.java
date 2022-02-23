@@ -19,7 +19,7 @@ public class IntimacaoValidator {
             if (intimacao.getProcesso() == 0) {
                 mensagem += "Número do processo não é válido<br/>";
             }
-            if ((intimacao.getCpf() == null) || (intimacao.getCpf().equals("")) || (SosifodUtil.isCPF(intimacao.getCpf()))) {
+            if ((intimacao.getCpf() == null) || (intimacao.getCpf().equals("")) || (!SosifodUtil.isCPF(intimacao.getCpf()))) {
                 mensagem += "CPF do intimado não é válido<br/>";
             }
             if ((intimacao.getNome() == null) || (intimacao.getNome().equals(""))) {
